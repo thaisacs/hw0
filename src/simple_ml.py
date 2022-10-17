@@ -48,7 +48,36 @@ def parse_mnist(image_filename, label_filename):
                 for MNIST will contain the values 0-9.
     """
     ### BEGIN YOUR CODE
-    pass
+    images = []
+    labels = []
+    
+    with gzip.open(image_filename,'r') as f:
+        # first 4 bytes is a magic number
+        magic_number = int.from_bytes(f.read(4), 'big')
+        # second 4 bytes is the number of images
+        image_count = int.from_bytes(f.read(4), 'big')
+        # third 4 bytes is the row count
+        row_count = int.from_bytes(f.read(4), 'big')
+        # fourth 4 bytes is the column count
+        column_count = int.from_bytes(f.read(4), 'big')
+        # rest is the image pixel data, each pixel is stored as an unsigned byte
+        # pixel values are 0 to 255
+        image_data = f.read()
+        images = np.frombuffer(image_data, dtype=np.uint8).reshape((image_count, row_count * column_count))
+        info = np.iinfo(images.dtype)
+        images = images.astype(np.float32)/info.max
+
+    with gzip.open(label_filename,'r') as f:
+        # first 4 bytes is a magic number
+        magic_number = int.from_bytes(f.read(4), 'big')
+        # second 4 bytes is the number of labels
+        label_count = int.from_bytes(f.read(4), 'big')
+        # rest is the label data, each label is stored as unsigned byte
+        # label values are 0 to 9
+        label_data = f.read()
+        labels = np.frombuffer(label_data, dtype=np.uint8)
+
+    return images, labels
     ### END YOUR CODE
 
 
@@ -165,13 +194,14 @@ def train_nn(X_tr, y_tr, X_te, y_te, hidden_dim = 500,
 
 
 if __name__ == "__main__":
-    X_tr, y_tr = parse_mnist("data/train-images-idx3-ubyte.gz",
-                             "data/train-labels-idx1-ubyte.gz")
-    X_te, y_te = parse_mnist("data/t10k-images-idx3-ubyte.gz",
-                             "data/t10k-labels-idx1-ubyte.gz")
+    parse_mnist("data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz")
+    #X_tr, y_tr = parse_mnist("data/train-images-idx3-ubyte.gz",
+    #                         "data/train-labels-idx1-ubyte.gz")
+    #X_te, y_te = parse_mnist("data/t10k-images-idx3-ubyte.gz",
+    #                         "data/t10k-labels-idx1-ubyte.gz")
 
-    print("Training softmax regression")
-    train_softmax(X_tr, y_tr, X_te, y_te, epochs=10, lr = 0.1)
+    #print("Training softmax regression")
+    #train_softmax(X_tr, y_tr, X_te, y_te, epochs=10, lr = 0.1)
 
-    print("\nTraining two layer neural network w/ 100 hidden units")
-    train_nn(X_tr, y_tr, X_te, y_te, hidden_dim=100, epochs=20, lr = 0.2)
+    #print("\nTraining two layer neural network w/ 100 hidden units")
+    #train_nn(X_tr, y_tr, X_te, y_te, hidden_dim=100, epochs=20, lr = 0.2)
