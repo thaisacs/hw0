@@ -97,7 +97,11 @@ def softmax_loss(Z, y):
         Average softmax loss over the sample.
     """
     ### BEGIN YOUR CODE
-    pass
+    s = 0
+    for i in range(0, len(Z)):
+        s += np.log(np.sum(np.exp(Z[i]-Z[i][y[i]])))
+    s = s/len(Z)
+    return float("{:.7f}".format(s))
     ### END YOUR CODE
 
 
@@ -194,7 +198,6 @@ def train_nn(X_tr, y_tr, X_te, y_te, hidden_dim = 500,
 
 
 if __name__ == "__main__":
-    parse_mnist("data/train-images-idx3-ubyte.gz", "data/train-labels-idx1-ubyte.gz")
     #X_tr, y_tr = parse_mnist("data/train-images-idx3-ubyte.gz",
     #                         "data/train-labels-idx1-ubyte.gz")
     #X_te, y_te = parse_mnist("data/t10k-images-idx3-ubyte.gz",
@@ -205,3 +208,9 @@ if __name__ == "__main__":
 
     #print("\nTraining two layer neural network w/ 100 hidden units")
     #train_nn(X_tr, y_tr, X_te, y_te, hidden_dim=100, epochs=20, lr = 0.2)
+    X,y = parse_mnist("data/train-images-idx3-ubyte.gz",
+                      "data/train-labels-idx1-ubyte.gz")
+    np.random.seed(0)
+
+    Z = np.random.randn(y.shape[0], 10)
+    print(softmax_loss(Z,y))
