@@ -5,6 +5,7 @@ try:
     from simple_ml_ext import *
 except:
     pass
+import numdifftools as nd
 
 
 def add(x, y):
@@ -124,7 +125,7 @@ def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    return 0
     ### END YOUR CODE
 
 
@@ -208,9 +209,18 @@ if __name__ == "__main__":
 
     #print("\nTraining two layer neural network w/ 100 hidden units")
     #train_nn(X_tr, y_tr, X_te, y_te, hidden_dim=100, epochs=20, lr = 0.2)
-    X,y = parse_mnist("data/train-images-idx3-ubyte.gz",
-                      "data/train-labels-idx1-ubyte.gz")
-    np.random.seed(0)
 
-    Z = np.random.randn(y.shape[0], 10)
-    print(softmax_loss(Z,y))
+    # test numeical gradient
+    np.random.seed(0)
+    X = np.random.randn(50,5).astype(np.float32)
+    y = np.random.randint(3, size=(50,)).astype(np.uint8)
+    Theta = np.zeros((5,3), dtype=np.float32)
+    dTheta = -nd.Gradient(lambda Th : softmax_loss(X@Th.reshape(5,3),y))(Theta)
+    print(softmax_regression_epoch(X,y,Theta,lr=1.0,batch=50))
+
+
+    ## test multi-steps on MNIST
+    #X,y = parse_mnist("data/train-images-idx3-ubyte.gz",
+    #                  "data/train-labels-idx1-ubyte.gz")
+    #theta = np.zeros((X.shape[1], y.max()+1), dtype=np.float32)
+    #softmax_regression_epoch(X[:100], y[:100], theta, lr=0.1, batch=10)
