@@ -121,7 +121,17 @@ def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    index = np.arange(X.shape[0])
+
+    for i in range(0, X.shape[0], batch):
+        X_batch = X[index[i : i + batch]]
+        y_batch = y[index[i : i + batch]]
+
+        H = X_batch @ theta
+        Z = np.exp(H) / np.sum(np.exp(H), axis=1, keepdims=True)
+        Z[np.arange(Z.shape[0]), y_batch] -= 1
+        gradient = X_batch.T @ Z / batch
+        theta -= lr * gradient
     ### END YOUR CODE
 
 
@@ -148,7 +158,23 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    index = np.arange(X.shape[0])
+    for i in range(0, X.shape[0], batch):
+        X_batch = X[index[i : i + batch]]
+        y_batch = y[index[i : i + batch]]
+
+        Z1 = X_batch @ W1
+        Z1[Z1 < 0] = 0  # Z1=relu(XW1)
+
+        G2 = np.exp(Z1 @ W2)
+        G2 /= np.sum(G2, axis=1, keepdims=True)
+        G2[np.arange(G2.shape[0]), y_batch] -= 1  # G2=softmax(Z1W2)-y
+
+        G1 = G2 @ W2.T
+        G1[Z1 == 0] = 0  # G1=relu'(Z1)G2W2^T
+
+        W1 -= lr * X_batch.T @ G1 / batch
+        W2 -= lr * Z1.T @ G2 / batch
     ### END YOUR CODE
 
 
@@ -195,38 +221,13 @@ def train_nn(X_tr, y_tr, X_te, y_te, hidden_dim = 500,
 
 
 if __name__ == "__main__":
-    X,y = parse_mnist("data/train-images-idx3-ubyte.gz",
-                      "data/train-labels-idx1-ubyte.gz")
-    np.random.seed(0)
+    X_tr, y_tr = parse_mnist("data/train-images-idx3-ubyte.gz",
+                             "data/train-labels-idx1-ubyte.gz")
+    X_te, y_te = parse_mnist("data/t10k-images-idx3-ubyte.gz",
+                             "data/t10k-labels-idx1-ubyte.gz")
 
-    Z = np.zeros((y.shape[0], 10))
-    softmax_loss(Z,y)
+    print("Training softmax regression")
+    train_softmax(X_tr, y_tr, X_te, y_te, epochs=10, lr = 0.1)
 
-
-
-
-    #X_tr, y_tr = parse_mnist("data/train-images-idx3-ubyte.gz",
-    #                         "data/train-labels-idx1-ubyte.gz")
-    #X_te, y_te = parse_mnist("data/t10k-images-idx3-ubyte.gz",
-    #                         "data/t10k-labels-idx1-ubyte.gz")
-
-    #print("Training softmax regression")
-    #train_softmax(X_tr, y_tr, X_te, y_te, epochs=10, lr = 0.1)
-
-    #print("\nTraining two layer neural network w/ 100 hidden units")
-    #train_nn(X_tr, y_tr, X_te, y_te, hidden_dim=100, epochs=20, lr = 0.2)
-
-    # test numeical gradient
-    #np.random.seed(0)
-    #X = np.random.randn(50,5).astype(np.float32)
-    #y = np.random.randint(3, size=(50,)).astype(np.uint8)
-    #Theta = np.zeros((5,3), dtype=np.float32)
-    #dTheta = -nd.Gradient(lambda Th : softmax_loss(X@Th.reshape(5,3),y))(Theta)
-    #print(softmax_regression_epoch(X,y,Theta,lr=1.0,batch=50))
-
-
-    ## test multi-steps on MNIST
-    #X,y = parse_mnist("data/train-images-idx3-ubyte.gz",
-    #                  "data/train-labels-idx1-ubyte.gz")
-    #theta = np.zeros((X.shape[1], y.max()+1), dtype=np.float32)
-    #softmax_regression_epoch(X[:100], y[:100], theta, lr=0.1, batch=10)
+    print("\nTraining two layer neural network w/ 100 hidden units")
+    train_nn(X_tr, y_tr, X_te, y_te, hidden_dim=100, epochs=20, lr = 0.2)
