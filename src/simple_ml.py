@@ -7,7 +7,6 @@ except:
     pass
 import numdifftools as nd
 
-
 def add(x, y):
     """ A trivial 'add' function you should implement to get used to the
     autograder and submission system.  The solution to this problem is in the
@@ -23,7 +22,6 @@ def add(x, y):
     ### BEGIN YOUR CODE
     return x + y
     ### END YOUR CODE
-
 
 def parse_mnist(image_filename, label_filename):
     """ Read an images and labels file in MNIST format.  See this page:
@@ -81,7 +79,6 @@ def parse_mnist(image_filename, label_filename):
     return images, labels
     ### END YOUR CODE
 
-
 def softmax_loss(Z, y):
     """ Return softmax loss.  Note that for the purposes of this assignment,
     you don't need to worry about "nicely" scaling the numerical properties
@@ -100,7 +97,6 @@ def softmax_loss(Z, y):
     ### BEGIN YOUR CODE
     return np.mean(-Z[np.arange(Z.shape[0]), y] + np.log(np.sum(np.exp(Z), axis=1)))
     ### END YOUR CODE
-
 
 def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
     """ Run a single epoch of SGD for softmax regression on the data, using
@@ -133,7 +129,6 @@ def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
         gradient = X_batch.T @ Z / batch
         theta -= lr * gradient
     ### END YOUR CODE
-
 
 def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
     """ Run a single epoch of SGD for a two-layer neural network defined by the
@@ -177,14 +172,11 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
         W2 -= lr * Z1.T @ G2 / batch
     ### END YOUR CODE
 
-
-
 ### CODE BELOW IS FOR ILLUSTRATION, YOU DO NOT NEED TO EDIT
 
 def loss_err(h,y):
     """ Helper funciton to compute both loss and error"""
     return softmax_loss(h,y), np.mean(h.argmax(axis=1) != y)
-
 
 def train_softmax(X_tr, y_tr, X_te, y_te, epochs=10, lr=0.5, batch=100,
                   cpp=False):
@@ -201,7 +193,6 @@ def train_softmax(X_tr, y_tr, X_te, y_te, epochs=10, lr=0.5, batch=100,
         print("|  {:>4} |    {:.5f} |   {:.5f} |   {:.5f} |  {:.5f} |"\
               .format(epoch, train_loss, train_err, test_loss, test_err))
 
-
 def train_nn(X_tr, y_tr, X_te, y_te, hidden_dim = 500,
              epochs=10, lr=0.5, batch=100):
     """ Example function to train two layer neural network """
@@ -217,8 +208,6 @@ def train_nn(X_tr, y_tr, X_te, y_te, hidden_dim = 500,
         test_loss, test_err = loss_err(np.maximum(X_te@W1,0)@W2, y_te)
         print("|  {:>4} |    {:.5f} |   {:.5f} |   {:.5f} |  {:.5f} |"\
               .format(epoch, train_loss, train_err, test_loss, test_err))
-
-
 
 if __name__ == "__main__":
     X_tr, y_tr = parse_mnist("data/train-images-idx3-ubyte.gz",
